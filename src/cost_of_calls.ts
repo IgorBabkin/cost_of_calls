@@ -20,7 +20,7 @@ function parse_data(logs: string): { [id: number]: number } {
     }, {});
 }
 
-function calculate_total(calls_durations: { [id: number]: number }, excluded_phone_number: number): number {
+function calculate_total_cost(calls_durations: { [id: number]: number }, excluded_phone_number: number): number {
     return Object.keys(calls_durations)
         .filter((phone) => parseInt(phone) != excluded_phone_number)
         .map((key) => calls_durations[key]).reduce((sum, value) => {
@@ -36,5 +36,5 @@ function calculate_total(calls_durations: { [id: number]: number }, excluded_pho
 export default function cost_of_calls(logs: string): number {
     const calls_durations = parse_data(logs);
     const free_number = find_free_number(calls_durations);
-    return calculate_total(calls_durations, free_number);
+    return calculate_total_cost(calls_durations, free_number);
 }

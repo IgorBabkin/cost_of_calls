@@ -1,4 +1,6 @@
-function find_free_number(calls_durations: { [id: number]: number }): number {
+type CallsDurations = { [phone: number]: number };
+
+function find_free_number(calls_durations: CallsDurations): number {
     const phones = Object.keys(calls_durations);
     if (phones.length == 1)
         return null;
@@ -7,7 +9,7 @@ function find_free_number(calls_durations: { [id: number]: number }): number {
     return Math.min.apply(null, phones.filter((phone) => calls_durations[phone] == max_total));
 }
 
-function parse_data(logs: string): { [id: number]: number } {
+function parse_data(logs: string): CallsDurations {
     const pattern = /(\d{2}):(\d{2}):(\d{2}),(\d{3}-\d{3}-\d{3})/;
     return logs.split("\n").reduce((calls, call_log) => {
         const [call_string, hh, mm, ss, phone_string] = call_log.match(pattern);
@@ -20,7 +22,7 @@ function parse_data(logs: string): { [id: number]: number } {
     }, {});
 }
 
-function calculate_total_cost(calls_durations: { [id: number]: number }, excluded_phone_number: number): number {
+function calculate_total_cost(calls_durations: CallsDurations, excluded_phone_number: number): number {
     return Object.keys(calls_durations)
         .filter((phone) => parseInt(phone) != excluded_phone_number)
         .map((key) => calls_durations[key]).reduce((sum, value) => {

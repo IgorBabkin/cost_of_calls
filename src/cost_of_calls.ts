@@ -1,10 +1,10 @@
-function find_free_number(totals: { [id: number]: number }): number {
-    const phone_numbers = Object.keys(totals);
-    if (phone_numbers.length == 1)
+function find_free_number(calls_durations: { [id: number]: number }): number {
+    const phones = Object.keys(calls_durations);
+    if (phones.length == 1)
         return null;
 
-    const max_total = Math.max.apply(null, phone_numbers.map((phone) => totals[phone]));
-    return Math.min.apply(null, phone_numbers.filter((phone) => totals[phone] == max_total));
+    const max_total = Math.max.apply(null, phones.map((phone) => calls_durations[phone]));
+    return Math.min.apply(null, phones.filter((phone) => calls_durations[phone] == max_total));
 }
 
 function parse_data(logs: string): { [id: number]: number } {
@@ -20,24 +20,21 @@ function parse_data(logs: string): { [id: number]: number } {
     }, {});
 }
 
-function calculate_total(values: number[]): number {
-    return values.reduce((sum, value) => {
-        if (value / 60 < 5)
-            return sum + value * 3;
-        else if (value / 60 >= 5) {
-            return sum + Math.round(value / 60) * 150 + (value % 60 == 0 ? 0 : 150)
-        }
-        return sum;
-    }, 0)
+function calculate_total(calls_durations: { [id: number]: number }, excluded_phone_number: number): number {
+    return Object.keys(calls_durations)
+        .filter((phone) => parseInt(phone) != excluded_phone_number)
+        .map((key) => calls_durations[key]).reduce((sum, value) => {
+            if (value / 60 < 5)
+                return sum + value * 3;
+            else if (value / 60 >= 5) {
+                return sum + Math.round(value / 60) * 150 + (value % 60 == 0 ? 0 : 150)
+            }
+            return sum;
+        }, 0)
 }
 
 export default function cost_of_calls(logs: string): number {
-    const totals = parse_data(logs);
-    const free_number = find_free_number(totals);
-
-    const costs = Object.keys(totals)
-        .filter((phone) => parseInt(phone) != free_number)
-        .map((key) => totals[key]);
-
-    return calculate_total(costs);
+    const calls_durations = parse_data(logs);
+    const free_number = find_free_number(calls_durations);
+    return calculate_total(calls_durations, free_number);
 }
